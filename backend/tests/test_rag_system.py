@@ -6,13 +6,15 @@ from rag_system import RAGSystem
 @pytest.fixture
 def rag_system():
     """RAGSystem with all heavy dependencies patched out"""
-    with patch("rag_system.VectorStore"), \
-         patch("rag_system.AIGenerator"), \
-         patch("rag_system.SessionManager"), \
-         patch("rag_system.DocumentProcessor"), \
-         patch("rag_system.ToolManager"), \
-         patch("rag_system.CourseSearchTool"), \
-         patch("rag_system.CourseOutlineTool"):
+    with (
+        patch("rag_system.VectorStore"),
+        patch("rag_system.AIGenerator"),
+        patch("rag_system.SessionManager"),
+        patch("rag_system.DocumentProcessor"),
+        patch("rag_system.ToolManager"),
+        patch("rag_system.CourseSearchTool"),
+        patch("rag_system.CourseOutlineTool"),
+    ):
 
         config = Mock()
         config.CHUNK_SIZE = 800

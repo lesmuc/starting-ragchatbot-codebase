@@ -141,8 +141,8 @@ def test_tools_param_passed_to_api(mock_anthropic_client, generator):
 def test_no_tools_in_final_api_call(mock_anthropic_client, generator):
     """After rounds exhausted, synthesis call has no tools"""
     mock_anthropic_client.messages.create.side_effect = [
-        _make_tool_response(),          # round 0: tool_use
-        _make_tool_response(),          # round 1: tool_use → rounds exhausted
+        _make_tool_response(),  # round 0: tool_use
+        _make_tool_response(),  # round 1: tool_use → rounds exhausted
         _make_text_response("Synthesis"),  # final no-tools call
     ]
     mock_tool_manager = Mock()
