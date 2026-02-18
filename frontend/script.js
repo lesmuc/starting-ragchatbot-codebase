@@ -1,6 +1,34 @@
 // API base URL - use relative path to work from any host
 const API_URL = '/api';
 
+// ── Theme Management ──────────────────────────────────────────────────────────
+
+function initTheme() {
+    // Inline script in <head> already set data-theme; just sync the button label.
+    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    updateToggleLabel(theme);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateToggleLabel(next);
+}
+
+function updateToggleLabel(theme) {
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.setAttribute(
+            'aria-label',
+            theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+        );
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Global state
 let currentSessionId = null;
 
@@ -17,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     courseTitles = document.getElementById('courseTitles');
     
     setupEventListeners();
+    initTheme();
     createNewSession();
     loadCourseStats();
 });
@@ -30,6 +59,9 @@ function setupEventListeners() {
     });
     
     
+    // Theme toggle
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
     // New chat button
     document.getElementById('newChatBtn').addEventListener('click', createNewSession);
 

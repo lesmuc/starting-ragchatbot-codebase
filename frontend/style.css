@@ -768,3 +768,134 @@ details[open] .suggested-header::before {
         width: 280px;
     }
 }
+
+/* ================================================
+   LIGHT THEME VARIABLES
+   ================================================ */
+[data-theme="light"] {
+    --background: #f1f5f9;
+    --surface: #ffffff;
+    --surface-hover: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #cbd5e1;
+    --user-message: #2563eb;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --focus-ring: rgba(37, 99, 235, 0.2);
+    --welcome-bg: #eff6ff;
+    --welcome-border: #3b82f6;
+}
+
+/* ================================================
+   SMOOTH THEME TRANSITIONS
+   (Only for elements that don't already have
+   transition:all, to avoid overriding hover fx)
+   ================================================ */
+body,
+.sidebar,
+.chat-main,
+.chat-container,
+.chat-messages,
+.chat-input-container,
+.message-content,
+.stat-item,
+.course-title-item {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ================================================
+   THEME TOGGLE BUTTON
+   ================================================ */
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 0;
+    overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--surface-hover);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.08);
+}
+
+.theme-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.theme-toggle:active {
+    transform: scale(0.9);
+}
+
+/* Both icons sit on top of each other; opacity+rotate drives the swap */
+.theme-toggle svg {
+    position: absolute;
+    transition: opacity 0.25s ease, transform 0.3s ease;
+}
+
+/* Dark theme (default): sun visible, moon hidden */
+.theme-toggle .icon-sun {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.theme-toggle .icon-moon {
+    opacity: 0;
+    transform: rotate(90deg);
+}
+
+/* Light theme: moon visible, sun hidden */
+[data-theme="light"] .theme-toggle .icon-sun {
+    opacity: 0;
+    transform: rotate(-90deg);
+}
+
+[data-theme="light"] .theme-toggle .icon-moon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* ================================================
+   LIGHT THEME SPECIFIC OVERRIDES
+   ================================================ */
+
+/* Source link pills */
+[data-theme="light"] .sources-content a {
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+    border-color: rgba(37, 99, 235, 0.25);
+}
+
+[data-theme="light"] .sources-content a:hover {
+    background: rgba(37, 99, 235, 0.15);
+    color: #1e40af;
+}
+
+[data-theme="light"] .sources-content span {
+    background: rgba(100, 116, 139, 0.1);
+    border-color: rgba(100, 116, 139, 0.2);
+}
+
+/* Inline code and code blocks */
+[data-theme="light"] .message-content code {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .message-content pre {
+    background-color: rgba(0, 0, 0, 0.06);
+}
