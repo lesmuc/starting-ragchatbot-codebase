@@ -1,0 +1,99 @@
+name: Claude Code Assistant
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-issue-triage:
+    # Automatisch bei neuen Issues (ohne @claude)
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Ein neues Issue wurde geöffnet. Bitte analysiere es und antworte als Kommentar auf das Issue.
+
+            Deine Aufgaben:
+            1. Lies das Issue sorgfältig und verstehe das Problem oder den Feature-Request.
+            2. Analysiere den relevanten Code im Repository.
+            3. Schreibe einen strukturierten Kommentar mit:
+               - Kurze Zusammenfassung: Was ist das Problem / die Anforderung?
+               - Betroffene Dateien/Module: Welche Teile des Codes sind betroffen?
+               - Lösungsplan: Welche Schritte sind nötig, um das Issue zu lösen?
+               - Testplan: Welche Tests müssen hinzugefügt oder angepasst werden?
+               - Aufwandsschätzung: Gib eine grobe Einschätzung (klein / mittel / groß)
+            4. Wenn das Issue unklar ist, stelle gezielte Rückfragen im Kommentar.
+            5. Vergib passende Labels, falls möglich (bug, enhancement, question, etc.).
+
+            Wichtige Hinweise zum Projekt:
+            - Full-stack RAG Chatbot: FastAPI-Backend (backend/app.py) serviert das Frontend als statische Dateien
+            - Zwei API-Endpunkte: POST /api/query und GET /api/courses
+            - RAG-Pipeline: Nutzeranfragen → AIGenerator → optionaler Claude tool call → CourseSearchTool → ChromaDB → Antwort
+            - Vektordatenbank: ChromaDB mit zwei Collections (course_catalog und course_content) in backend/chroma_db/
+            - Tools-Pattern: Neue Tools werden in search_tools.py als Unterklassen von Tool implementiert und beim ToolManager registriert
+            - Session-History: In-Memory gespeichert, geht bei Server-Neustart verloren
+            - Tests: pytest, Testdateien unter backend/tests/
+            - Konfiguration: Alle zentralen Einstellungen in backend/config.py
+            - Schreibe Kommentare auf Deutsch, wenn das Issue auf Deutsch verfasst wurde, sonst auf Englisch
+
+  claude-on-mention:
+    # Auf @claude Mentions in Issue-Kommentaren reagieren
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.action == 'created' &&
+      contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Du wurdest mit @claude in einem Issue-Kommentar erwähnt. Führe die gewünschte Aufgabe aus.
+
+            Projektarchitektur:
+            - Full-stack RAG Chatbot: FastAPI-Backend (backend/app.py) serviert das Frontend als statische Dateien
+            - Zwei API-Endpunkte: POST /api/query und GET /api/courses
+            - RAG-Pipeline: Nutzeranfragen → AIGenerator (backend/ai_generator.py) → optionaler Claude tool call → CourseSearchTool → ChromaDB → Antwort
+            - Vektordatenbank: ChromaDB mit zwei Collections (course_catalog und course_content) in backend/chroma_db/
+            - Tools-Pattern: Neue Tools in search_tools.py als Unterklassen von Tool implementieren, beim ToolManager registrieren
+            - Session-History: In-Memory gespeichert (backend/app.py), geht bei Server-Neustart verloren
+            - Konfiguration: backend/config.py (Modell, Chunk-Größe, max. Ergebnisse, etc.)
+            - Tests: pytest, Testdateien unter backend/tests/
+            - Kursdokumente: docs/ Verzeichnis, Format siehe CLAUDE.md
+
+            Allgemeine Verhaltensregeln:
+            - Python-Projekt: Halte dich an PEP 8 und Best Practices
+            - Erstelle für jede Änderung einen eigenen Feature-Branch und öffne einen PR
+            - Der PR soll das Issue referenzieren (Closes #<issue-nummer>)
+            - Kommentiere auf Deutsch, wenn das Issue auf Deutsch ist, sonst auf Englisch
+
+            Wenn du Code implementierst:
+            1. Analysiere zunächst die betroffenen Dateien
+            2. Implementiere die Lösung
+            3. Schreibe oder passe Tests in backend/tests/ an (pytest)
+            4. Stelle sicher, dass alle bestehenden Tests weiterhin grün sind
+            5. Erstelle einen PR mit einer klaren Beschreibung der Änderungen
+
+            Wenn du ein Review oder eine Analyse durchführst:
+            1. Gib strukturiertes Feedback direkt als Kommentar
+            2. Weise auf potenzielle Bugs, fehlende Tests oder Architekturverstöße hin
